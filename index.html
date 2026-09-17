@@ -4,10 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WAPDA Town Sports</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0c1720">
-<link rel="icon" type="image/png" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -35,14 +31,44 @@
     background-attachment: fixed, fixed, fixed, fixed;
   }
 
+  @media (max-width: 780px){
+    body{
+      background-image:
+        radial-gradient(circle at 12% 8%, rgba(46,125,82,0.2), transparent 42%),
+        radial-gradient(circle at 90% 15%, rgba(227,167,48,0.12), transparent 38%),
+        linear-gradient(180deg, #071510, #0c2117 55%, #071510);
+      background-size: auto, auto, auto;
+      background-position: center, center, center;
+      background-repeat: no-repeat, no-repeat, no-repeat;
+      background-attachment: fixed, fixed, fixed;
+    }
+  }
+
   /* ---------- HEADER ---------- */
   .app-header{ background:linear-gradient(160deg, var(--navy-dark), var(--navy)); color:#eef2ee; padding:22px 22px 0; border-bottom:4px solid var(--gold); }
   .app-header-top{ max-width:1100px; margin:0 auto; display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding-bottom:18px; }
-  .crest{ width:52px; height:52px; border-radius:50%; flex:0 0 auto; background:linear-gradient(135deg, var(--gold), #b97e12); display:flex; align-items:center; justify-content:center; font-size:24px; border:2px solid #eef2ee; }
-  .app-header h1{ font-family:'Bebas Neue',sans-serif; letter-spacing:1px; font-size:clamp(22px,4vw,30px); margin:0; line-height:1;}
-  .app-header p{ margin:2px 0 0; font-size:13px; color:#c3cdd2;}
-  .storage-badge{ margin-left:auto; font-size:12px; background:rgba(255,255,255,0.08); padding:6px 12px; border-radius:999px; border:1px solid rgba(255,255,255,0.15); }
-  .sport-tabs{ max-width:1100px; margin:0 auto; display:flex; gap:6px; overflow-x:auto; }
+  .crest{
+    width:58px; height:58px; border-radius:50%; flex:0 0 auto;
+    background:linear-gradient(135deg, var(--gold), #b97e12);
+    display:flex; align-items:center; justify-content:center; font-size:27px;
+    border:2px solid #eef2ee;
+    box-shadow:0 6px 16px rgba(227,167,48,0.4), inset 0 0 0 3px rgba(0,0,0,0.2);
+  }
+  .brand-text{ position:relative; }
+  .app-header h1{
+    font-family:'Bebas Neue',sans-serif; letter-spacing:2px; font-size:clamp(24px,4.4vw,34px);
+    margin:0; line-height:1; color:#f5f8f5; text-shadow:0 2px 12px rgba(0,0,0,0.55);
+  }
+  .app-header h1 .brand-accent{
+    background:linear-gradient(90deg, var(--gold), #ffd67a);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .app-header h1::after{
+    content:""; display:block; width:70px; height:3px; margin-top:7px; border-radius:2px;
+    background:linear-gradient(90deg, var(--gold), transparent);
+  }
+  .app-header p{ margin:7px 0 0; font-size:13px; color:#c3cdd2; letter-spacing:0.2px; }
+  .sport-tabs{ max-width:1100px; margin:0 auto; display:flex; gap:6px; overflow-x:auto; position:relative; -webkit-mask-image:linear-gradient(90deg, #000 90%, transparent 100%); mask-image:linear-gradient(90deg, #000 90%, transparent 100%); }
   .sport-tab{ font-family:'Inter',sans-serif; font-weight:700; font-size:14px; background:transparent; border:none; color:#c3cdd2; cursor:pointer; padding:12px 18px; border-radius:10px 10px 0 0; white-space:nowrap; display:flex; align-items:center; gap:7px; }
   .sport-tab.active{ background:rgba(255,255,255,0.08); color:#fff; border-bottom:3px solid var(--accent); }
 
@@ -328,11 +354,10 @@
 <header class="app-header">
   <div class="app-header-top">
     <div class="crest">🏆</div>
-    <div>
-      <h1>WAPDA TOWN SPORTS</h1>
+    <div class="brand-text">
+      <h1>WAPDA <span class="brand-accent">TOWN</span> SPORTS</h1>
       <p>Player registration, tournaments &amp; live scoring across all sections</p>
     </div>
-    <div class="storage-badge" id="storageMode"></div>
   </div>
   <div class="sport-tabs" id="sportTabs"></div>
 </header>
@@ -546,9 +571,6 @@
       if(tournErr) throw tournErr;
       tournaments = (tournRows || []).map(rowToTournament);
     }catch(e){ console.error('Failed to load tournaments from Supabase', e); toast('Could not load tournaments — check your connection.'); }
-  }
-  function showStorageMode(){
-    $('storageMode').textContent = '☁ Synced live (Supabase)';
   }
 
   // ================= HELPERS =================
@@ -1246,18 +1268,12 @@
 
   // ================= INIT =================
   (async function init(){
-    showStorageMode();
     setAccent(currentSport);
-    await loadAll();
-    renderAll();
+    renderAll();        // show the UI immediately, even before data arrives
+    await loadAll();    // fetch players/tournaments in the background
+    renderAll();        // re-render once data (or a failure) comes back
   })();
 })();
-
-if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
-  });
-}
 </script>
 </body>
 </html>
